@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:latest
+    container_name: my_api_rest_db
+    restart: always
+    env_file:
+      - .env
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - my_api_rest_volumes:/var/lib/mysql
+    ports:
+      - "${MYSQL_PORT}:3306"
+    networks:
+      - my_api_rest_network
+
+  api:
+    build: 
+      context: .
+      dockerfile: api.dockerfile
+    container_name: my_api_rest_api
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+    ports:
+      - "${PORT}:3000"
+    networks:
+      - my_api_rest_network
+
+volumes:
+  my_api_rest_volumes:
+
+networks:
+  my_api_rest_network:
+    driver: bridge
